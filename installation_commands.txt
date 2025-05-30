@@ -1,0 +1,8 @@
+sudo dnf install python3.11-devel
+sudo dnf install gcc-c++    
+sudo dnf install perl
+
+
+sudo dnf install postgresql-server postgresql-contrib
+sudo systemctl enable postgresql
+sudo postgresql-setup --initdb --unit postgresql
