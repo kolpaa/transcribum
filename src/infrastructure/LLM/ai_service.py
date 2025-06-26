@@ -11,10 +11,10 @@ from src.domain.constants import LLMPrompts
 class AIService(IAIService):
     def __init__(
         self,
+        auth: str,
+	    folder_id: str,
         embedding_model: str = "mxbai-embed-large",
         generation_model: str = "deepseek-r1:8b",
-	auth: str,
-	folder_id: str
     ):
         self.client = chromadb.Client()
         self.embedding_model = embedding_model
