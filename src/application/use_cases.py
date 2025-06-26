@@ -1,5 +1,6 @@
 from typing import List, Optional
 import asyncio
+import os
 from functools import partial
 from collections import deque, defaultdict
 
@@ -39,6 +40,10 @@ class UserService:
         await self.cash_repo.set_user_id(adapter_id=adapter_id,
                                    id=id)
         return id
+    
+    async def get_all_users_id(self):
+        ids = await self.repo.get_all_users_id()
+        return ids
     
     
 class FilesQueue:
@@ -145,7 +150,7 @@ class ApplicationService:
         supported = {e.value for e in (*AudioExtensions, *VideoExtensions)}
         return ext in supported
     
-    async def prepare_transcription_request(self, options, file_path: str, user_id: int, callback: callable, on_insufficient_funds: callable, on_wrong_format: callable):
+    async def prepare_transcription_request(self, options, file_path: str, user_id: int, callback: callable, notify_start_transcrib: callable, on_insufficient_funds: callable, on_wrong_format: callable):
         if not self.is_extension_correct(file_path):
             await on_wrong_format(user_id)
             return
@@ -158,6 +163,7 @@ class ApplicationService:
         queue_element = QueueElement(user_id=user_id, 
                                      file_path=file_path, 
                                      callback=callback, 
+                                     notify_start_transcrib=notify_start_transcrib,
                                      options=options)
         await self.queue.add_file_to_queue(queue_element)
 
@@ -200,6 +206,7 @@ class TranscriberQueueProcessor:
             try:
                 async with self.task_lock:
                     self.active_tasks += 1
+                await queue_item.notify_start_transcrib(id = queue_item.user_id, file_name = os.path.basename(queue_item.file_path))
                 output_files = await self.application_service.transcribe(file_path=queue_item.file_path,
                                                             delete_input_file = True,
                                                             user_adapter_id = queue_item.user_id,
@@ -214,4 +221,5 @@ class TranscriberQueueProcessor:
 
     def stop(self):
         self.running = False
+
 

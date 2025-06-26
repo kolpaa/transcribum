@@ -48,3 +48,10 @@ class SQLAlchemyUserRepository(IUserRepository):
         stmt = update(cls.model).where(cls.model.telegram_id == id).values(paid_minutes=paid_minutes)
         await session.execute(stmt)
         await session.commit()
+
+    @connection
+    async def get_all_users_id(self,  session: AsyncSession):
+        query = select(self.model.telegram_id)
+        result = await session.execute(query)
+        records = result.scalars().all()
+        return records

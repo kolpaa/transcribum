@@ -6,3 +6,11 @@ sudo dnf install perl
 sudo dnf install postgresql-server postgresql-contrib
 sudo systemctl enable postgresql
 sudo postgresql-setup --initdb --unit postgresql
+
+
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+pip install cython
+
+
+//pip install -U nvidia-cuda-runtime-cu12 nvidia-cudnn-cu12

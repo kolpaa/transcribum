@@ -2,6 +2,7 @@ import os
 import subprocess
 import ffmpeg
 import re
+import shutil, random, string
 from src.domain.constants import ResultExtensions
 from docx import Document
 from reportlab.lib.pagesizes import A4
@@ -153,6 +154,23 @@ class FileService(IFileService):
 
  
 class LinkService(ILinkService):
+    @classmethod
+    def create_random_copy(cls, file_path):
+        # Получаем директорию и имя исходного файла
+        dir_path = os.path.dirname(file_path)
+        file_name = os.path.basename(file_path)
+        file_ext = os.path.splitext(file_name)[1]  # Получаем расширение файла
+        
+        # Генерируем случайное имя (10 символов)
+        random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=5))
+        new_file_name = random_name + file_ext
+        new_file_path = os.path.join(dir_path, new_file_name)
+        
+        # Копируем файл
+        shutil.copy2(file_path, new_file_path)
+        return new_file_path
+
+
     @classmethod
     def download_link(cls, link, download_dir="downloads"):
         os.makedirs(download_dir, exist_ok=True)

@@ -15,5 +15,6 @@ class QueueElement(BaseModel):
     user_id: int 
     file_path: str
     callback: Callable
+    notify_start_transcrib: Callable
     options: Dict[str, List[str]]
 

@@ -3,6 +3,11 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from src.domain.constants import ResultExtensions, LLMPrompts
 
+from aiogram.filters.callback_data import CallbackData
+
+class GPTCallback(CallbackData, prefix="gpt"):
+        file_path: str
+        prompt: str
 
 INITIAL_SELECTION = {
     ResultExtensions.DOCX: False,
@@ -43,6 +48,26 @@ class TranscibumViews():
     def top_up_balance_message() -> str:
         return "Пополните баланс"
     
+    @staticmethod
+    def started_downloading() -> str:
+        return "Загружаю файл..."
+    
+    @staticmethod
+    def started_transcrib(filename) -> str:
+        return f"Начинаю транскрибацию {filename}"
+    
+    @staticmethod
+    def downloading_error() -> str:
+        return "Ошибка при загрузке файла"
+
+    @staticmethod
+    def get_gpt_button(file_path, prompt) -> InlineKeyboardMarkup:
+        builder = InlineKeyboardBuilder()
+        builder.button(
+                    text="Улучшить в YandexGPT", 
+                    callback_data=GPTCallback(file_path=file_path, prompt=prompt)
+                    )
+        return builder.as_markup()
 
     @staticmethod
     def get_options_keyboard(selection: dict) -> InlineKeyboardMarkup:
@@ -57,6 +82,16 @@ class TranscibumViews():
         builder.row(InlineKeyboardButton(text="🔒 Подтвердить", callback_data=CONFIRM_BUTTON))
         return builder.as_markup()
     
+    @staticmethod
+    def bot_update():
+        return """Новое обновление бота 🎉
+
+✅ Поддержка формата .m4a
+
+✅ Обработка больших файлов — даже в несколько гигабайт
+
+✅ Уведомления о начале загрузки и транскрибации, чтобы вы всегда знали, на каком этапе ваш файл"""
+
     @staticmethod
     def get_greeting():
         return """Привет! Я — Транскрибум 🤖
@@ -75,4 +110,5 @@ class TranscibumViews():
 — составить саммари,
 — подготовить пост для соцсетей.
 
-Начните с отправки файла или ссылки — остальное сделаю я!"""
+Начните с отправки файла или ссылки — остальное сделаю я!
+transcribum.ru"""

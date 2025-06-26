@@ -18,6 +18,9 @@ class IUserRepository(ABC):
     @abstractmethod
     async def update_paid_minutes_data(self, id, paid_minutes) -> bool: pass
 
+    @abstractmethod
+    async def get_all_users_id(self) -> List[int]: pass
+
 
 class ICashUserRepository(ABC):
     @abstractmethod
@@ -66,6 +69,10 @@ class ITranscriber(ABC):
 
 
 class IFileService(ABC):
+    @classmethod
+    @abstractmethod
+    def create_random_copy(cls, file_path : str) -> str: pass
+
     @classmethod
     @abstractmethod
     def delete_files(cls, *files) ->  bool: pass
@@ -121,6 +128,9 @@ class IAIService(ABC):
     def cleanup(self) -> None:
         """Освобождает ресурсы (например, удаляет коллекцию ChromaDB)."""
         pass
+
+    @abstractmethod
+    def generate_remote_api_answer(self, file_path : str, prompt : str) -> str: pass
 
 
 

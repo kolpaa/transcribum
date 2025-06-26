@@ -20,7 +20,7 @@ from src.domain.constants import LLMPrompts, ResultExtensions
 
 router = Router()
 
-@router.message(F.audio | F.video | F.document)
+@router.message(F.audio | F.video | F.document | F.voice)
 async def handle_file(message, transcribum_controller: TranscribumController):
     await transcribum_controller.handle_new_file(message)
 
@@ -33,6 +33,10 @@ async def handle_callback(callback: types.CallbackQuery, transcribum_controller 
 @router.message(Command("start"))
 async def start_selection(message: types.Message, transcribum_controller : TranscribumController):
     await transcribum_controller.handle_start(message)
+
+@router.message(Command("dev"))
+async def start_selection(message: types.Message, transcribum_controller : TranscribumController):
+    await transcribum_controller.dev_tests(message)
 
 
 @router.message(F.text)

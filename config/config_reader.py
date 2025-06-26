@@ -11,7 +11,9 @@ class Settings(BaseSettings):
     DB_NAME: str
     WHISPER_DEVICE: str
     WHISPER_MODEL: str
-
+    LLM_MODEL: str
+    AUTH: str
+    FOLDER_ID: str
     DOWNLOADS_DIR: DirectoryPath = DirectoryPath("./data/downloads")
     TRANSCRIPTS_DIR: DirectoryPath = DirectoryPath("./data/transcripts")
 
