@@ -38,6 +38,10 @@ async def start_selection(message: types.Message, transcribum_controller : Trans
 async def start_selection(message: types.Message, transcribum_controller : TranscribumController):
     await transcribum_controller.dev_tests(message)
 
+@router.message(Command("support"))
+async def start_selection(message: types.Message, transcribum_controller : TranscribumController):
+    await transcribum_controller.support(message)
+
 
 @router.message(F.text)
 async def handle_link(message, transcribum_controller : TranscribumController):

@@ -43,6 +43,12 @@ class TranscibumViews():
         ])
         return keyboard
 
+    @staticmethod
+    def support() -> str:
+        return """По всем вопросам и  предложениям обращайтесь:  
+👉 @trjrjj  
+
+Отвечаем быстро!  """
 
     @staticmethod
     def top_up_balance_message() -> str:

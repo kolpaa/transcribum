@@ -33,7 +33,7 @@ class TranscribumController():
 
 
     async def delete_old_selections(self, user_id, message_id, file_path):
-        await asyncio.sleep(300)
+        await asyncio.sleep(600)
         try:
             await self.bot.edit_message_text(
                 chat_id=user_id,
@@ -270,3 +270,6 @@ class TranscribumController():
                                             ))
             await self.transcriber_service.user_service.cash_repo.add_user_file(message.from_user.id, file)
             await self.show_options_keyboard(message=message, file_path = file)
+
+    async def support(self, message):
+         await self.bot.send_message(chat_id = message.from_user.id, text = self.views.support())
