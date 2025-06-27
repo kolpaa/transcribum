@@ -155,7 +155,7 @@ class FileService(IFileService):
  
 class LinkService(ILinkService):
     @classmethod
-    def getDirectLinkFromMailCloudUrl(link):
+    def getDirectLinkFromMailCloudUrl(cls, link):
         # link should look like 'https://cloud.mail.ru/public/XXX/YYYYYYYY'
         response = requests.get(link)
         page_content = response.text
