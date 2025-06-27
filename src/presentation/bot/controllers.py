@@ -47,7 +47,7 @@ class TranscribumController():
                     res["prompts"].append(LLMPrompts(key))
                 elif key in ResultExtensions.__members__.values() and user_options[key]:
                     res["formats"].append(ResultExtensions(key))
-            self.add_file(user_id=user_id, options=res)
+            await self.add_file(user_id=user_id, options=res)
             # await self.bot.edit_message_text(
             #     chat_id=user_id,
             #     message_id=message_id,
@@ -137,7 +137,7 @@ class TranscribumController():
         await callback.message.delete()
         # await callback.message.answer(f"Вы выбрали:\n\n{res}")
 
-        self.add_file(user_id=user_id, options=res)
+        await self.add_file(user_id=user_id, options=res)
     
     async def yandex_gpt_callback(self, callback, callback_data):
         user_id = callback.from_user.id
