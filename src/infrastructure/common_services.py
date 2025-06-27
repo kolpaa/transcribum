@@ -10,7 +10,7 @@ from reportlab.pdfgen import canvas
 from textwrap import wrap
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-import logging
+import logging, requests
 
 from src.domain.interfaces import IFileService, ILinkService
 
@@ -155,6 +155,24 @@ class FileService(IFileService):
  
 class LinkService(ILinkService):
     @classmethod
+    def getDirectLinkFromMailCloudUrl(link):
+        # link should look like 'https://cloud.mail.ru/public/XXX/YYYYYYYY'
+        response = requests.get(link)
+        page_content = response.text
+
+        re_pattern = r'dispatcher.*?weblink_get.*?url":"(.*?)"'
+        match = re.search(re_pattern , page_content)
+
+        if match:
+            url = match.group(1)
+            # get /XXX/YYYYYYYY from source link
+            parts = link.split('/')[-2:]
+            # add XXX and YYYYYYYY to result link
+            url = f'{url}/{parts[0]}/{parts[1]}'
+            return url
+        
+        return None
+    @classmethod
     def create_random_copy(cls, file_path):
         # Получаем директорию и имя исходного файла
         dir_path = os.path.dirname(file_path)
@@ -176,7 +194,10 @@ class LinkService(ILinkService):
         os.makedirs(download_dir, exist_ok=True)
 
         output_template = os.path.join(download_dir, "%(title)s.%(ext)s")
-
+        if "cloud.mail.ru" in link:
+            link = cls.getDirectLinkFromMailCloudUrl(link)
+            if not link:
+                return None
         command = ["yt-dlp", link]
         command.extend([
             "-x", "--audio-format", "wav", 
