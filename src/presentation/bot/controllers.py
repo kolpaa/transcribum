@@ -33,7 +33,7 @@ class TranscribumController():
 
 
     async def delete_old_selections(self, user_id, message_id, file_path):
-        await asyncio.sleep(600)
+        await asyncio.sleep(100)
         try:
             await self.bot.delete_message(chat_id=user_id, message_id=message_id)
             user_options = await self.transcriber_service.user_service.cash_repo.get_user_selection(user_id)
@@ -47,14 +47,14 @@ class TranscribumController():
                     res["prompts"].append(LLMPrompts(key))
                 elif key in ResultExtensions.__members__.values() and user_options[key]:
                     res["formats"].append(ResultExtensions(key))
-            await self.add_file(user_id=user_id, options=res)
+            await self.add_file(user_id=user_id, options=res, input_path=file_path)
             # await self.bot.edit_message_text(
             #     chat_id=user_id,
             #     message_id=message_id,
             #     text="Вы не выбрали параметры, сессия отменена. Пожалуйста, отправьте файл заново.",
             #     reply_markup=None
             # )
-            self.transcriber_service.file_service.delete_files(file_path)
+            # self.transcriber_service.file_service.delete_files(file_path)
         except Exception:
             pass
 
@@ -103,8 +103,9 @@ class TranscribumController():
     async def notify_start_transcrib(self, id, file_name):
         await self.bot.send_message(text=self.views.started_transcrib(filename=file_name), chat_id=id)
 
-    async def add_file(self, user_id, options):
-        input_path = await self.transcriber_service.user_service.cash_repo.get_user_file(user_id)
+    async def add_file(self, user_id, options, input_path = ""):
+        if not input_path:
+            input_path = await self.transcriber_service.user_service.cash_repo.get_user_file(user_id)
         await self.bot.send_message(chat_id=user_id, text=f"Файл {os.path.basename(input_path)} добавлен в очередь")
         if input_path:
             await self.transcriber_service.prepare_transcription_request(
