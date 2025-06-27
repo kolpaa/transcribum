@@ -35,12 +35,25 @@ class TranscribumController():
     async def delete_old_selections(self, user_id, message_id, file_path):
         await asyncio.sleep(600)
         try:
-            await self.bot.edit_message_text(
-                chat_id=user_id,
-                message_id=message_id,
-                text="Вы не выбрали параметры, сессия отменена. Пожалуйста, отправьте файл заново.",
-                reply_markup=None
-            )
+            await self.bot.delete_message(chat_id=user_id, message_id=message_id)
+            user_options = await self.transcriber_service.user_service.cash_repo.get_user_selection(user_id)
+            if not user_options:
+                user_options =  INITIAL_SELECTION.copy()
+
+            res = {"prompts":[], "formats": []}
+            print(user_options.items())
+            for key, value in user_options.items():
+                if key in LLMPrompts.__members__.values() and user_options[key]:
+                    res["prompts"].append(LLMPrompts(key))
+                elif key in ResultExtensions.__members__.values() and user_options[key]:
+                    res["formats"].append(ResultExtensions(key))
+            self.add_file(user_id=user_id, options=res)
+            # await self.bot.edit_message_text(
+            #     chat_id=user_id,
+            #     message_id=message_id,
+            #     text="Вы не выбрали параметры, сессия отменена. Пожалуйста, отправьте файл заново.",
+            #     reply_markup=None
+            # )
             self.transcriber_service.file_service.delete_files(file_path)
         except Exception:
             pass
@@ -90,6 +103,22 @@ class TranscribumController():
     async def notify_start_transcrib(self, id, file_name):
         await self.bot.send_message(text=self.views.started_transcrib(filename=file_name), chat_id=id)
 
+    async def add_file(self, user_id, options):
+        input_path = await self.transcriber_service.user_service.cash_repo.get_user_file(user_id)
+        await self.bot.send_message(chat_id=user_id, text=f"Файл {os.path.basename(input_path)} добавлен в очередь")
+        if input_path:
+            await self.transcriber_service.prepare_transcription_request(
+                options = options,
+                file_path=input_path,
+                user_id=user_id,
+                callback=self.handle_transcription_result,
+                notify_start_transcrib=self.notify_start_transcrib,
+                on_insufficient_funds=lambda uid: self.bot.send_message(uid, self.views.top_up_balance_message()),
+                on_wrong_format=lambda uid: self.bot.send_message(uid, self.views.file_format_error())
+            )
+        else:
+            await self.bot.send_message(user_id, text="Сессия истекла, вышлите файл заново")
+
     async def handle_confirm_callback(self, callback):
         user_id = callback.from_user.id
         user_options = await self.transcriber_service.user_service.cash_repo.get_user_selection(user_id)
@@ -108,20 +137,7 @@ class TranscribumController():
         await callback.message.delete()
         # await callback.message.answer(f"Вы выбрали:\n\n{res}")
 
-        input_path = await self.transcriber_service.user_service.cash_repo.get_user_file(user_id)
-        await callback.message.answer(f"Файл {os.path.basename(input_path)} добавлен в очередь")
-        if input_path:
-            await self.transcriber_service.prepare_transcription_request(
-                options = res,
-                file_path=input_path,
-                user_id=user_id,
-                callback=self.handle_transcription_result,
-                notify_start_transcrib=self.notify_start_transcrib,
-                on_insufficient_funds=lambda uid: self.bot.send_message(uid, self.views.top_up_balance_message()),
-                on_wrong_format=lambda uid: self.bot.send_message(uid, self.views.file_format_error())
-            )
-        else:
-            await self.bot.send_message(user_id, text="Сессия истекла, вышлите файл заново")
+        self.add_file(user_id=user_id, options=res)
     
     async def yandex_gpt_callback(self, callback, callback_data):
         user_id = callback.from_user.id
