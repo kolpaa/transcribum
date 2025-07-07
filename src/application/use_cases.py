@@ -52,6 +52,7 @@ class FilesQueue:
         self.user_order = deque()              
         self.lock = asyncio.Lock()
         self.not_empty = asyncio.Condition()
+        self.current_file = None
 
     async def add_file_to_queue(self, queue_element: QueueElement):
         async with self.lock:
@@ -207,6 +208,7 @@ class TranscriberQueueProcessor:
                 async with self.task_lock:
                     self.active_tasks += 1
                 await queue_item.notify_start_transcrib(id = queue_item.user_id, file_name = os.path.basename(queue_item.file_path))
+                self.files_queue.current_file = queue_item
                 output_files = await self.application_service.transcribe(file_path=queue_item.file_path,
                                                             delete_input_file = True,
                                                             user_adapter_id = queue_item.user_id,

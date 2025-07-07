@@ -34,9 +34,14 @@ class TranscribumController():
         files = self.transcriber_service.queue.get_user_files_from_queue(user_id=message.from_user.id)
         files_message = ""
         print(files)
+        current_file = self.transcriber_service.queue.current_file
+        offset = 0
+        if current_file and current_file.user_id == message.from_user.id:
+            files_message += f"Файл {1}: {os.path.basename(current_file.file_path)}\nПозиция в очереди: {0}\n\n"
+            offset = 1
         for position, file in enumerate(files):
             pos = await self.transcriber_service.queue.get_position(user_id=message.from_user.id, file_path=file.file_path)
-            files_message += f"Файл {position+1}: {file.file_path}\nПозиция в очереди: {pos}\n\n"
+            files_message += f"Файл {position+ 1 + offset}: {os.path.basename(file.file_path)}\nПозиция в очереди: {pos + 1}\n\n"
         if files_message:
             await self.bot.send_message(chat_id=message.from_user.id, text=files_message)
         else:
