@@ -31,7 +31,7 @@ class TranscribumController():
         await message.answer(self.views.get_greeting())
 
     async def check_files(self, message):
-        files = await self.transcriber_service.queue.get_user_files_from_queue(user_id=message.from_user.id)
+        files = self.transcriber_service.queue.get_user_files_from_queue(user_id=message.from_user.id)
         files_message = ""
         print(files)
         for position, file in enumerate(files):
