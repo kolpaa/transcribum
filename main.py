@@ -36,9 +36,9 @@ async def main():
     bot = Bot(config.TG_BOT_TOKEN.get_secret_value(), session=session)
 
     await bot.set_my_commands(commands=
-                [   types.BotCommand('start', 'Описание бота'),
-                    types.BotCommand('support', 'Тех. поддержка'),
-                    types.BotCommand('check_files', 'Текущие файлы')
+                [   types.BotCommand(command = 'start', description = 'Описание бота'),
+                    types.BotCommand(command = 'support', description = 'Тех. поддержка'),
+                    types.BotCommand(command = 'check_files', description = 'Текущие файлы')
                 ])
 
     files_queue = FilesQueue()
