@@ -42,6 +42,10 @@ async def start_selection(message: types.Message, transcribum_controller : Trans
 async def start_selection(message: types.Message, transcribum_controller : TranscribumController):
     await transcribum_controller.support(message)
 
+@router.message(Command("check_files"))
+async def start_selection(message: types.Message, transcribum_controller : TranscribumController):
+    await transcribum_controller.check_files(message)
+
 
 @router.message(F.text)
 async def handle_link(message, transcribum_controller : TranscribumController):

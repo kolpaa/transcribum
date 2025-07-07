@@ -30,7 +30,17 @@ class TranscribumController():
     async def handle_start(self, message):
         await message.answer(self.views.get_greeting())
 
-
+    async def check_files(self, message):
+        files = await self.transcriber_service.queue.get_user_files_from_queue(user_id=message.from_user.id)
+        files_message = ""
+        print(files)
+        for position, file in enumerate(files):
+            pos = await self.transcriber_service.queue.get_position(user_id=message.from_user.id, file_path=file.file_path)
+            files_message += f"Файл {position+1}: {file.file_path}\nПозиция в очереди: {pos}\n\n"
+        if files_message:
+            await self.bot.send_message(chat_id=message.from_user.id, text=files_message)
+        else:
+            await self.bot.send_message(chat_id=message.from_user.id, text="У вас нет файлов в очереди")
 
     async def delete_old_selections(self, user_id, message_id, file_path):
         await asyncio.sleep(100)
